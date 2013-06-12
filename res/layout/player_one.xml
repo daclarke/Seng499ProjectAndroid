@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+       <Button android:id="@+id/button_up"            
+        android:layout_width="100dp"
+           android:layout_height="wrap_content"
+           android:text="@string/button_up"
+           android:layout_gravity="center"
+       />    
+    <LinearLayout	        
+      		android:orientation="horizontal"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center"
+        >
+        <Button android:id="@+id/button_left"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/button_left"
+        />
+        <Button android:id="@+id/button_down"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/button_down"
+        />
+        <Button android:id="@+id/button_right"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/button_right"
+        />
+   	</LinearLayout>
+    <ListView android:id="@+id/in"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stackFromBottom="true"
+        android:transcriptMode="alwaysScroll"
+    />
+</LinearLayout>
