@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     >
-    <LinearLayout	    
-      	android:orientation="vertical"
+    <LinearLayout
+	    android:orientation="vertical"
 	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:gravity="center"    
+	    android:layout_height="match_parent"
 	    >
 	    <Button android:id="@+id/button_up"            
-	     	 android:layout_width="100dp"
-	    	 android:layout_height="100dp"
-	         android:text="@string/button_up"
-	         android:layout_gravity="center"
+	     	android:layout_width="100dp"
+	        android:layout_height="100dp"
+	        android:text="@string/button_up"
+	        android:layout_gravity="center"
 	    />    
 	    <LinearLayout	        
 	      	android:orientation="horizontal"
@@ -36,15 +35,34 @@
 	        	android:layout_height="100dp"
 	            android:text="@string/button_right"
 	        />
-   		</LinearLayout>
+	   	</LinearLayout>
+	   	<LinearLayout
+		    android:orientation="vertical"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:gravity="center"
+		    >
+		    <Button android:id="@+id/button_vertical_up"            
+		     	android:layout_width="100dp"
+	        	android:layout_height="100dp"
+		        android:text="@string/button_vertical_up"
+		        android:layout_gravity="center"
+		    />    
+		    <Button android:id="@+id/button_vertical_down"            
+		     	android:layout_width="100dp"
+	        	android:layout_height="100dp"
+		        android:text="@string/button_vertical_down"
+		        android:layout_gravity="center"
+		    />    
+	   	</LinearLayout>
 	    <ListView android:id="@+id/in"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
+	        android:layout_width="wrap_content"
+	        android:layout_height="fill_parent"
 	        android:stackFromBottom="true"
 	        android:transcriptMode="alwaysScroll"
-	    /> 
-   	</LinearLayout>
-	<RelativeLayout 
+	    />
+	</LinearLayout>
+<RelativeLayout 
 	    android:id="@+id/InnerRelativeLayout"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"

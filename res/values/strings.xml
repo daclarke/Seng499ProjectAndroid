@@ -2,7 +2,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Seng499</string>
 
-    <string name="welcome_message">Press the menu key to connect a to another device</string>
+    <string name="welcome_message">Press the menu key and connect to the Arduino</string>
     
     <!--  BluetoothChat -->
     <string name="send">Send</string>
@@ -25,6 +25,11 @@
     <string name="connect">Connect a device</string>
     <string name="discoverable">Make discoverable</string>
     
+    <!-- Starting Menu Buttons -->
+    <string name="button_num_players_one">One Player</string>
+    <string name="button_num_players_two">Two Player</string>
+    <string name="button_num_players_three">Three Player</string>
+    
     <!-- Button Text -->
     <string name="button_up">Forward</string>
     <string name="button_down">Reverse</string>
@@ -32,5 +37,6 @@
     <string name="button_right">Right</string>
     <string name="button_vertical_up">Up</string>
     <string name="button_vertical_down">Down</string>
-    
+    <string name="button_menu">Back to player menu</string>
+        
 </resources>

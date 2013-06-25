@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2009 The Android Open Source Project
  *
@@ -28,7 +29,9 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -43,9 +46,9 @@ import android.widget.Toast;
 /**
  * This is the main Activity that displays the current chat session.
  */
-public class Communication extends Activity {
+public class Controller extends Activity {
 	// Debugging
-	private static final String TAG = "BluetoothChat";
+	private static final String TAG = "Controller";
 	private static final boolean D = true;
 
 	// Message types sent from the CommunicationService Handler
@@ -67,6 +70,8 @@ public class Communication extends Activity {
 	private TextView mTitle;
 	private ListView mConversationView;
 	private EditText mOutEditText;
+	
+	// Buttons
 	private Button mSendButton;
 	private Button mForwardButton;
 	private Button mUpButton;
@@ -74,6 +79,10 @@ public class Communication extends Activity {
 	private Button mReverseButton;
 	private Button mLeftButton;
 	private Button mRightButton;
+	private Button mOnePlayerButton;
+	private Button mTwoPlayerButton;
+	private Button mThreePlayerButton;
+	private Button mBackPlayerMenu;
 	
     public static final int CONNECTION_TYPE_SERVER = 1;
     public static final int CONNECTION_TYPE_CLIENT = 2;
@@ -90,7 +99,7 @@ public class Communication extends Activity {
 	// Local Bluetooth adapter
 	private BluetoothAdapter mBluetoothAdapter = null;
 	// Member object for the chat services
-	private CommunicationService mChatService = null;
+	private ControllerService mControllerService = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -135,7 +144,7 @@ public class Communication extends Activity {
 			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
 			// Otherwise, setup the chat session
 		} else {
-			if (mChatService == null)
+			if (mControllerService == null)
 				setupChat();
 		}
 	}
@@ -150,12 +159,12 @@ public class Communication extends Activity {
 		// not enabled during onStart(), so we were paused to enable it...
 		// onResume() will be called when ACTION_REQUEST_ENABLE activity
 		// returns.
-		if (mChatService != null) {
+		if (mControllerService != null) {
 			// Only if the state is STATE_NONE, do we know that we haven't
 			// started already
-			if (mChatService.getState() == CommunicationService.STATE_NONE) {
+			if (mControllerService.getState() == ControllerService.STATE_NONE) {
 				// Start the Bluetooth chat services
-				mChatService.start();
+				mControllerService.start();
 			}
 		}
 		
@@ -165,7 +174,7 @@ public class Communication extends Activity {
 		Log.d(TAG, "setupChat()");
 
 		// Initialize the CommunicationService to perform bluetooth connections
-		mChatService = new CommunicationService(this, mHandler);
+		mControllerService = new ControllerService(this, mHandler);
 
 		// Initialize the buffer for outgoing messages
 		mOutStringBuffer = new StringBuffer("");
@@ -189,8 +198,8 @@ public class Communication extends Activity {
 	public void onDestroy() {
 		super.onDestroy();
 		// Stop the Bluetooth chat services
-		if (mChatService != null)
-			mChatService.stop();
+		if (mControllerService != null)
+			mControllerService.stop();
 		if (D)
 			Log.e(TAG, "--- ON DESTROY ---");
 	}
@@ -213,7 +222,7 @@ public class Communication extends Activity {
 	 */
 	private void sendMessage(String message) {
 		// Check that we're actually connected before trying anything
-		if (mChatService.getState() != CommunicationService.STATE_CONNECTED) {
+		if (mControllerService.getState() != ControllerService.STATE_CONNECTED) {
 			Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT)
 					.show();
 			return;
@@ -222,18 +231,18 @@ public class Communication extends Activity {
 		// Check that there's actually something to send
 		if (message.length() > 0) {
 			
-			switch(mChatService.connection_type){
+/*			switch(mControllerService.connection_type){
 			case CONNECTION_TYPE_CLIENT:
 				message = "client: " + message;
 				break;
 			case CONNECTION_TYPE_SERVER:
 				message = "server: " + message;
 				break;
-			}
+			}*/
 			
 			// Get the message bytes and tell the CommunicationService to write
 			byte[] send = message.getBytes();
-			mChatService.write(send);
+			mControllerService.write(send);
 
 			// Reset out string buffer to zero and clear the edit text field
 			mOutStringBuffer.setLength(0);
@@ -266,24 +275,17 @@ public class Communication extends Activity {
 				if (D)
 					Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
 				switch (msg.arg1) {
-				case CommunicationService.STATE_CONNECTED:
+				case ControllerService.STATE_CONNECTED:
 					mTitle.setText(R.string.title_connected_to);
 					mTitle.append(mConnectedDeviceName);
 					//mConversationArrayAdapter.clear();
-					switch(mChatService.connection_type){
-					case CONNECTION_TYPE_CLIENT:
-						SetUpPlayer1();
-						break;
-					case CONNECTION_TYPE_SERVER:
-						SetUpPlayer2();
-						break;
-					}
+					SetUpMenu();
 					break;
-				case CommunicationService.STATE_CONNECTING:
+				case ControllerService.STATE_CONNECTING:
 					mTitle.setText(R.string.title_connecting);
 					break;
-				case CommunicationService.STATE_LISTEN:
-				case CommunicationService.STATE_NONE:
+				case ControllerService.STATE_LISTEN:
+				case ControllerService.STATE_NONE:
 					mTitle.setText(R.string.title_not_connected);
 					break;
 				}
@@ -331,7 +333,7 @@ public class Communication extends Activity {
 				BluetoothDevice device = mBluetoothAdapter
 						.getRemoteDevice(address);
 				// Attempt to connect to the device
-				mChatService.connect(device);		
+				mControllerService.connect(device);		
 			}
 			break;
 		case REQUEST_ENABLE_BT:
@@ -371,6 +373,157 @@ public class Communication extends Activity {
 		}
 		return false;
 	}
+
+	private void SetUpMenu() {
+		setContentView(R.layout.player_menu);
+
+		mOnePlayerButton = (Button) findViewById(R.id.button_num_players_one);
+		mOnePlayerButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SetUpOnePlayer();
+			}
+		});
+		
+		mTwoPlayerButton = (Button) findViewById(R.id.button_num_players_two);
+		mTwoPlayerButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SetUpTwoPlayer();
+			}
+		});
+		
+		mThreePlayerButton = (Button) findViewById(R.id.button_num_players_three);
+		mThreePlayerButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SetUpThreePlayer();
+			}
+		});
+	}
+	
+	public void SetUpOnePlayer() {
+		setContentView(R.layout.one_player);
+
+		// Initialize the array adapter for the conversation thread
+		mConversationArrayAdapter = new ArrayAdapter<String>(this,R.layout.message);
+		mConversationView = (ListView) findViewById(R.id.in);
+		mConversationView.setAdapter(mConversationArrayAdapter);
+
+		mUpButton = (Button) findViewById(R.id.button_vertical_up);
+		mUpButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "ASCENDING";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "HALTING ASCENSION";
+		        }
+				sendMessage(message);
+				return false;
+		     }
+		});
+		
+		mDownButton = (Button) findViewById(R.id.button_vertical_down);
+		mDownButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "DESCENDING";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "HALTING DESCENSION";
+		        }
+				sendMessage(message);
+				return false;
+		     }
+		});
+		
+		mForwardButton = (Button) findViewById(R.id.button_up);
+		mForwardButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "FULL SPEED AHEAD";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "FULL STOP";
+		        }
+				sendMessage(message);
+				return false;
+		     }
+		});
+
+		mReverseButton = (Button) findViewById(R.id.button_down);
+		mReverseButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "FULL REVERSE";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "HALTING REVERSE";
+		        }
+				sendMessage(message);
+				return false;
+		     }
+		});
+		
+		mLeftButton = (Button) findViewById(R.id.button_left);
+		mLeftButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "TURNING PORT";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "STOPPED TURNING";
+		        }
+				sendMessage(message);
+				return false;
+		     }
+		});
+		
+		mRightButton = (Button) findViewById(R.id.button_right);
+		mRightButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "TURNING STARBOARD";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "STOPPED TURNING";
+		        }
+				sendMessage(message);
+				return false;
+		     }
+		});
+
+		mBackPlayerMenu = (Button) findViewById(R.id.button_back_player_menu);
+		mBackPlayerMenu.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SetUpMenu();
+			}
+		});
+	}
+
+	private void SetUpTwoPlayer() {
+		switch(mControllerService.connection_type){
+		case CONNECTION_TYPE_CLIENT:
+			SetUpPlayer1();
+			break;
+		case CONNECTION_TYPE_SERVER:
+			SetUpPlayer2();
+			break;
+		}
+	}
+
+	private void SetUpThreePlayer() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	public void SetUpPlayer2() {
 		setContentView(R.layout.player_one);
@@ -381,34 +534,70 @@ public class Communication extends Activity {
 		mConversationView.setAdapter(mConversationArrayAdapter);
 
 		mForwardButton = (Button) findViewById(R.id.button_up);
-		mForwardButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				String message = "FULL SPEED AHEAD";
+		mForwardButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "FULL SPEED AHEAD";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "FULL STOP";
+		        }
 				sendMessage(message);
-			}
+				return false;
+		     }
 		});
 
 		mReverseButton = (Button) findViewById(R.id.button_down);
-		mReverseButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				String message = "RETREATING";
+		mReverseButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "FULL REVERSE";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "HALTING REVERSE";
+		        }
 				sendMessage(message);
-			}
+				return false;
+		     }
 		});
 		
 		mLeftButton = (Button) findViewById(R.id.button_left);
-		mLeftButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				String message = "FULL PORT";
+		mLeftButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "TURNING PORT";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "STOPPED TURNING";
+		        }
 				sendMessage(message);
-			}
+				return false;
+		     }
 		});
 		
 		mRightButton = (Button) findViewById(R.id.button_right);
-		mRightButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				String message = "GOING STARBOARD";
+		mRightButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "TURNING STARBOARD";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "STOPPED TURNING";
+		        }
 				sendMessage(message);
+				return false;
+		     }
+		});
+
+		mBackPlayerMenu = (Button) findViewById(R.id.button_back_player_menu);
+		mBackPlayerMenu.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SetUpMenu();
 			}
 		});
 	}
@@ -422,19 +611,42 @@ public class Communication extends Activity {
 		mConversationView.setAdapter(mConversationArrayAdapter);
 
 		mUpButton = (Button) findViewById(R.id.button_vertical_up);
-		mUpButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				String message = "TO THE SKIES";
+		mUpButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "ASCENDING";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "HALTING ASCENSION";
+		        }
 				sendMessage(message);
-			}
+				return false;
+		     }
 		});
 		
 		mDownButton = (Button) findViewById(R.id.button_vertical_down);
-		mDownButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				String message = "DESCENDING AS FAST AS WE CAN";
+		mDownButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		    	String message = "";
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	message = "DESCENDING";
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	message = "HALTING DESCENSION";
+		        }
 				sendMessage(message);
+				return false;
+		     }
+		});
+
+		mBackPlayerMenu = (Button) findViewById(R.id.button_back_player_menu);
+		mBackPlayerMenu.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SetUpMenu();
 			}
 		});
 	}
+
 }

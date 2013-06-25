@@ -37,13 +37,13 @@ import android.util.Log;
  * incoming connections, a thread for connecting with a device, and a
  * thread for performing data transmissions when connected.
  */
-public class CommunicationService {
+public class ControllerService {
     // Debugging
-    private static final String TAG = "CommunicationService";
+    private static final String TAG = "ControllerService";
     private static final boolean D = true;
 
     // Name for the SDP record when creating server socket
-    private static final String NAME = "Communication";
+    private static final String NAME = "Controller";
 
     // Unique UUID for this application
     private static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
@@ -71,7 +71,7 @@ public class CommunicationService {
      * @param context  The UI Activity Context
      * @param handler  A Handler to send messages back to the UI Activity
      */
-    public CommunicationService(Context context, Handler handler) {
+    public ControllerService(Context context, Handler handler) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
         mHandler = handler;
@@ -86,7 +86,7 @@ public class CommunicationService {
         mState = state;
 
         // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(Communication.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        mHandler.obtainMessage(Controller.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
     /**
@@ -158,9 +158,9 @@ public class CommunicationService {
         mConnectedThread.start();
 
         // Send the name of the connected device back to the UI Activity
-        Message msg = mHandler.obtainMessage(Communication.MESSAGE_DEVICE_NAME);
+        Message msg = mHandler.obtainMessage(Controller.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
-        bundle.putString(Communication.DEVICE_NAME, device.getName());
+        bundle.putString(Controller.DEVICE_NAME, device.getName());
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
@@ -202,9 +202,9 @@ public class CommunicationService {
         setState(STATE_LISTEN);
 
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(Communication.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(Controller.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(Communication.TOAST, "Unable to connect device");
+        bundle.putString(Controller.TOAST, "Unable to connect device");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
     }
@@ -216,9 +216,9 @@ public class CommunicationService {
         setState(STATE_LISTEN);
 
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(Communication.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(Controller.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(Communication.TOAST, "Device connection was lost");
+        bundle.putString(Controller.TOAST, "Device connection was lost");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
     }
@@ -262,7 +262,7 @@ public class CommunicationService {
 
                 // If a connection was accepted
                 if (socket != null) {
-                    synchronized (CommunicationService.this) {
+                    synchronized (ControllerService.this) {
                         switch (mState) {
                         case STATE_LISTEN:
                         case STATE_CONNECTING:
@@ -341,12 +341,12 @@ public class CommunicationService {
                     Log.e(TAG, "unable to close() socket during connection failure", e2);
                 }
                 // Start the service over to restart listening mode
-                CommunicationService.this.start();
+                ControllerService.this.start();
                 return;
             }
 
             // Reset the ConnectThread because we're done
-            synchronized (CommunicationService.this) {
+            synchronized (ControllerService.this) {
                 mConnectThread = null;
             }
 
@@ -403,7 +403,7 @@ public class CommunicationService {
                     bytes = mmInStream.read(buffer);
 
                     // Send the obtained bytes to the UI Activity
-                    mHandler.obtainMessage(Communication.MESSAGE_READ, bytes, -1, buffer)
+                    mHandler.obtainMessage(Controller.MESSAGE_READ, bytes, -1, buffer)
                             .sendToTarget();
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
@@ -422,7 +422,7 @@ public class CommunicationService {
                 mmOutStream.write(buffer);
 
                 // Share the sent message back to the UI Activity
-                mHandler.obtainMessage(Communication.MESSAGE_WRITE, -1, -1, buffer)
+                mHandler.obtainMessage(Controller.MESSAGE_WRITE, -1, -1, buffer)
                         .sendToTarget();
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
