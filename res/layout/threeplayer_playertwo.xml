@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <LinearLayout
+      	android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+	    android:gravity="center"     
+		>
+	     <LinearLayout	        
+	      	android:orientation="horizontal"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:gravity="center"
+	        >
+	        <Button android:id="@+id/button_left"
+	            android:layout_width="100dp"
+	        	android:layout_height="100dp"
+	            android:text="@string/button_left"
+	        />
+	        <Button android:id="@+id/button_right"
+	            android:layout_width="100dp"
+	        	android:layout_height="100dp"
+	            android:text="@string/button_right"
+	        />
+	   	</LinearLayout>
+	    <ListView android:id="@+id/in"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:stackFromBottom="true"
+	        android:transcriptMode="alwaysScroll"
+	    />        
+	</LinearLayout>
+	<RelativeLayout 
+	    android:id="@+id/InnerRelativeLayout"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true" 
+	    >
+	    <Button android:id="@+id/button_back_player_menu"
+	        android:layout_width="100dp"
+	        android:layout_height="wrap_content"
+	        android:layout_centerInParent="true"  
+	        android:text="@string/button_menu"      
+	    />
+	</RelativeLayout>  
+</RelativeLayout>
