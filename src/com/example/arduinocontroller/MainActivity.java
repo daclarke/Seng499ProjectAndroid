@@ -92,7 +92,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Connect();				        
-		        beginSendCommandsThread();
+		        //beginSendCommandsThread();
 				SetUpPlayerOptionMenu();
 			}
 		});
@@ -253,7 +253,6 @@ public class MainActivity extends Activity {
 	public void SetUpOnePlayer() {
 		setContentView(R.layout.one_player);
 
-		resetOutputMap();
 		outputCommands.put(cForward,false);
 		outputCommands.put(cStopForward,true);
 		outputCommands.put(cRight,false);
@@ -272,11 +271,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cUp, true);
-		        	outputCommands.put(cStopUp, false);
+		        	writeData(cUp);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopUp, true);
-		        	outputCommands.put(cUp, false);
+		        	writeData(cStopUp);
 		        }
 				return false;
 		     }
@@ -286,11 +283,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cDown, true);
-		        	outputCommands.put(cStopDown, false);
+		        	writeData(cDown);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopDown, true);
-		        	outputCommands.put(cDown, false);
+		        	writeData(cStopDown);
 		        }
 				return false;
 		     }
@@ -300,11 +295,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) { 
-		        	outputCommands.put(cForward, true);
-		        	outputCommands.put(cStopForward, false);
+		        	writeData(cForward);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) { 
-		        	outputCommands.put(cForward, true);
-		        	outputCommands.put(cStopForward, false);
+		        	writeData(cStopForward);
 		        }
 				return false;
 		     }
@@ -314,11 +307,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cReverse, true);
-		        	outputCommands.put(cStopReverse, false);
+		        	writeData(cReverse);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopReverse, true);
-		        	outputCommands.put(cReverse, false);
+		        	writeData(cStopReverse);
 		        }
 				return false;
 		     }
@@ -328,11 +319,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cLeft, true);
-		        	outputCommands.put(cStopLeft, false);
+		        	writeData(cLeft);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopLeft, true);
-		        	outputCommands.put(cLeft, false);
+		        	writeData(cStopLeft);
 		        }
 				return false;
 		     }
@@ -342,11 +331,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cRight, true);
-		        	outputCommands.put(cStopRight, false);
+		        	writeData(cRight);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopRight, true);
-		        	outputCommands.put(cRight, false);
+		        	writeData(cStopRight);
 		        }
 				return false;
 		     }
@@ -364,22 +351,19 @@ public class MainActivity extends Activity {
     protected void SetUpTwoPlayer_PlayerTwo() {
 		setContentView(R.layout.twoplayer_playertwo);
 
-		resetOutputMap();
-		outputCommands.put(cUp,false);
-		outputCommands.put(cStopUp,true);
-		outputCommands.put(cDown,false);
-		outputCommands.put(cStopDown,true);
+		outputCommands.put(cRight,false);
+		outputCommands.put(cStopRight,true);
+		outputCommands.put(cLeft,false);
+		outputCommands.put(cStopLeft,true);
 		
 		mUpButton = (Button) findViewById(R.id.button_vertical_up);
 		mUpButton.setOnTouchListener(new OnTouchListener() {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cUp, true);
-		        	outputCommands.put(cStopUp, false);
+		        	writeData(cUp);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopUp, true);
-		        	outputCommands.put(cUp, false);
+		        	writeData(cStopUp);
 		        }
 				return false;
 		     }
@@ -389,11 +373,33 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cDown, true);
-		        	outputCommands.put(cStopDown, false);
+		        	writeData(cDown);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopDown, true);
-		        	outputCommands.put(cDown, false);
+		        	writeData(cStopDown);
+		        }
+				return false;
+		     }
+		});
+		mLeftButton = (Button) findViewById(R.id.button_left);
+		mLeftButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	writeData(cLeft);
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	writeData(cStopLeft);
+		        }
+				return false;
+		     }
+		});		
+		mRightButton = (Button) findViewById(R.id.button_right);
+		mRightButton.setOnTouchListener(new OnTouchListener() {
+		     @Override
+		     public boolean onTouch(View v, MotionEvent event) {
+		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		        	writeData(cRight);
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	writeData(cStopRight);
 		        }
 				return false;
 		     }
@@ -410,13 +416,8 @@ public class MainActivity extends Activity {
 	protected void SetUpTwoPlayer_PlayerOne() {
 		setContentView(R.layout.twoplayer_playerone);
 
-		resetOutputMap();
 		outputCommands.put(cForward,false);
 		outputCommands.put(cStopForward,true);
-		outputCommands.put(cRight,false);
-		outputCommands.put(cStopRight,true);
-		outputCommands.put(cLeft,false);
-		outputCommands.put(cStopLeft,true);
 		outputCommands.put(cReverse,false);
 		outputCommands.put(cStopReverse,true);
 		
@@ -425,11 +426,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) { 
-		        	outputCommands.put(cForward, true);
-		        	outputCommands.put(cStopForward, false);
+		        	writeData(cForward);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) { 
-		        	outputCommands.put(cForward, true);
-		        	outputCommands.put(cStopForward, false);
+		        	writeData(cStopForward);
 		        }
 				return false;
 		     }
@@ -439,43 +438,14 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cReverse, true);
-		        	outputCommands.put(cStopReverse, false);
+		        	writeData(cReverse);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopReverse, true);
-		        	outputCommands.put(cReverse, false);
+		        	writeData(cStopReverse);
 		        }
 				return false;
 		     }
 		});		
-		mLeftButton = (Button) findViewById(R.id.button_left);
-		mLeftButton.setOnTouchListener(new OnTouchListener() {
-		     @Override
-		     public boolean onTouch(View v, MotionEvent event) {
-		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cLeft, true);
-		        	outputCommands.put(cStopLeft, false);
-		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopLeft, true);
-		        	outputCommands.put(cLeft, false);
-		        }
-				return false;
-		     }
-		});		
-		mRightButton = (Button) findViewById(R.id.button_right);
-		mRightButton.setOnTouchListener(new OnTouchListener() {
-		     @Override
-		     public boolean onTouch(View v, MotionEvent event) {
-		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cRight, true);
-		        	outputCommands.put(cStopRight, false);
-		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopRight, true);
-		        	outputCommands.put(cRight, false);
-		        }
-				return false;
-		     }
-		});
+		
 		mBackMenuButton = (Button) findViewById(R.id.button_back_player_menu);
 		mBackMenuButton.setOnClickListener(new OnClickListener() {			
 			@Override
@@ -489,7 +459,6 @@ public class MainActivity extends Activity {
 	protected void SetUpThreePlayer_PlayerThree() {
 		setContentView(R.layout.threeplayer_playerthree);
 
-		resetOutputMap();
 		outputCommands.put(cUp,false);
 		outputCommands.put(cStopUp,true);
 		outputCommands.put(cDown,false);
@@ -500,11 +469,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cUp, true);
-		        	outputCommands.put(cStopUp, false);
+		        	writeData(cUp);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopUp, true);
-		        	outputCommands.put(cUp, false);
+		        	writeData(cStopUp);
 		        }
 				return false;
 		     }
@@ -514,11 +481,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cDown, true);
-		        	outputCommands.put(cStopDown, false);
+		        	writeData(cDown);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopDown, true);
-		        	outputCommands.put(cDown, false);
+		        	writeData(cStopDown);
 		        }
 				return false;
 		     }
@@ -535,7 +500,6 @@ public class MainActivity extends Activity {
 	protected void SetUpThreePlayer_PlayerTwo() {
 		setContentView(R.layout.threeplayer_playertwo);
 
-		resetOutputMap();
 		outputCommands.put(cRight,false);
 		outputCommands.put(cStopRight,true);
 		outputCommands.put(cLeft,false);
@@ -546,11 +510,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cLeft, true);
-		        	outputCommands.put(cStopLeft, false);
+		        	writeData(cLeft);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopLeft, true);
-		        	outputCommands.put(cLeft, false);
+		        	writeData(cStopLeft);
 		        }
 				return false;
 		     }
@@ -560,11 +522,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cRight, true);
-		        	outputCommands.put(cStopRight, false);
+		        	writeData(cRight);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopRight, true);
-		        	outputCommands.put(cRight, false);
+		        	writeData(cStopLeft);
 		        }
 				return false;
 		     }
@@ -581,7 +541,6 @@ public class MainActivity extends Activity {
 	protected void SetUpThreePlayer_PlayerOne() {
 		setContentView(R.layout.threeplayer_playerone);
 		
-		resetOutputMap();
 		outputCommands.put(cForward,false);
 		outputCommands.put(cStopForward,true);
 		outputCommands.put(cReverse,false);
@@ -592,11 +551,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) { 
-		        	outputCommands.put(cForward, true);
-		        	outputCommands.put(cStopForward, false);
+		        	writeData(cForward);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) { 
-		        	outputCommands.put(cForward, true);
-		        	outputCommands.put(cStopForward, false);
+		        	writeData(cStopForward);
 		        }
 				return false;
 		     }
@@ -606,11 +563,9 @@ public class MainActivity extends Activity {
 		     @Override
 		     public boolean onTouch(View v, MotionEvent event) {
 		        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		        	outputCommands.put(cReverse, true);
-		        	outputCommands.put(cStopReverse, false);
+		        	writeData(cReverse);
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-		        	outputCommands.put(cStopReverse, true);
-		        	outputCommands.put(cReverse, false);
+		        	writeData(cStopForward);
 		        }
 				return false;
 		     }
@@ -624,11 +579,6 @@ public class MainActivity extends Activity {
 		});
 	}
 	
-	private void resetOutputMap() {
-		outputCommands = null;
-		outputCommands = new HashMap<Byte,Boolean>();
-	}
-
 	//This thread will loop ~10 times a second. Will output 6 commands per loop, 1 for each direction.
 	
 	public void beginSendCommandsThread(){

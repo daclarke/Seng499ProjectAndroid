@@ -8,7 +8,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" 
 	    android:gravity="center"     
-		>
+		>		  
+	    <LinearLayout	        
+	      	android:orientation="horizontal"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:gravity="center"
+	        >
+	        <Button android:id="@+id/button_left"
+	            android:layout_width="100dp"
+	        	android:layout_height="100dp"
+	            android:text="@string/button_left"
+	        />
+	        <Button android:id="@+id/button_right"
+	            android:layout_width="100dp"
+	        	android:layout_height="100dp"
+	            android:text="@string/button_right"
+	        />
+	    </LinearLayout>
 	    <Button android:id="@+id/button_vertical_up"            
 	     	android:layout_width="100dp"
 	        android:layout_height="100dp"
