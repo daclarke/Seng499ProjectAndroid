@@ -25,36 +25,43 @@ public final class R {
         public static final int ic_launcher=0x7f020001;
     }
     public static final class id {
-        public static final int InnerRelativeLayout=0x7f080009;
-        public static final int action_settings=0x7f080011;
-        public static final int button_back_player_menu=0x7f08000a;
-        public static final int button_down=0x7f080004;
-        public static final int button_left=0x7f080003;
-        public static final int button_num_players_one=0x7f08000b;
-        public static final int button_num_players_three=0x7f08000d;
-        public static final int button_num_players_two=0x7f08000c;
-        public static final int button_player_one=0x7f08000e;
-        public static final int button_player_three=0x7f080010;
-        public static final int button_player_two=0x7f08000f;
-        public static final int button_right=0x7f080005;
-        public static final int button_up=0x7f080002;
-        public static final int button_vertical_down=0x7f080007;
-        public static final int button_vertical_up=0x7f080006;
+        public static final int InnerRelativeLayout=0x7f08000e;
+        public static final int action_settings=0x7f080016;
+        public static final int button_back_player_menu=0x7f08000f;
+        public static final int button_down=0x7f080009;
+        public static final int button_left=0x7f080008;
+        public static final int button_num_players_one=0x7f080010;
+        public static final int button_num_players_three=0x7f080012;
+        public static final int button_num_players_two=0x7f080011;
+        public static final int button_player_one=0x7f080013;
+        public static final int button_player_three=0x7f080015;
+        public static final int button_player_two=0x7f080014;
+        public static final int button_right=0x7f08000a;
+        public static final int button_scan=0x7f080006;
+        public static final int button_up=0x7f080007;
+        public static final int button_vertical_down=0x7f08000c;
+        public static final int button_vertical_up=0x7f08000b;
         public static final int connect=0x7f080001;
-        public static final int in=0x7f080008;
+        public static final int in=0x7f08000d;
         public static final int msgJonduino=0x7f080000;
+        public static final int new_devices=0x7f080005;
+        public static final int paired_devices=0x7f080003;
+        public static final int title_new_devices=0x7f080004;
+        public static final int title_paired_devices=0x7f080002;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
-        public static final int one_player=0x7f030001;
-        public static final int player_menu=0x7f030002;
-        public static final int three_player_menu=0x7f030003;
-        public static final int threeplayer_playerone=0x7f030004;
-        public static final int threeplayer_playerthree=0x7f030005;
-        public static final int threeplayer_playertwo=0x7f030006;
-        public static final int two_player_menu=0x7f030007;
-        public static final int twoplayer_playerone=0x7f030008;
-        public static final int twoplayer_playertwo=0x7f030009;
+        public static final int device_list=0x7f030001;
+        public static final int device_name=0x7f030002;
+        public static final int one_player=0x7f030003;
+        public static final int player_menu=0x7f030004;
+        public static final int three_player_menu=0x7f030005;
+        public static final int threeplayer_playerone=0x7f030006;
+        public static final int threeplayer_playerthree=0x7f030007;
+        public static final int threeplayer_playertwo=0x7f030008;
+        public static final int two_player_menu=0x7f030009;
+        public static final int twoplayer_playerone=0x7f03000a;
+        public static final int twoplayer_playertwo=0x7f03000b;
     }
     public static final class menu {
         public static final int main=0x7f070000;
@@ -72,6 +79,7 @@ public final class R {
         public static final int button_player_three=0x7f050010;
         public static final int button_player_two=0x7f05000f;
         public static final int button_right=0x7f050007;
+        public static final int button_scan=0x7f050017;
         /**  Button Text 
          */
         public static final int button_up=0x7f050004;
@@ -79,6 +87,14 @@ public final class R {
         public static final int button_vertical_up=0x7f050008;
         public static final int connect=0x7f050003;
         public static final int hello_world=0x7f050002;
+        public static final int none_found=0x7f050014;
+        public static final int none_paired=0x7f050013;
+        /**   DeviceListActivity 
+         */
+        public static final int scanning=0x7f050011;
+        public static final int select_device=0x7f050012;
+        public static final int title_other_devices=0x7f050016;
+        public static final int title_paired_devices=0x7f050015;
     }
     public static final class style {
         /** 

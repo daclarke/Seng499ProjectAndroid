@@ -3,8 +3,6 @@ package com.example.arduinocontroller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import android.os.Bundle;
@@ -12,17 +10,16 @@ import android.os.Handler;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -32,6 +29,8 @@ public class MainActivity extends Activity {
 	Button Connect;
     ToggleButton OnOff;
     TextView Result;
+
+    private static final String NAME = "ArduinoController";
     
     private static final String TAG = "Main";
     private BluetoothAdapter mBluetoothAdapter = null;
@@ -45,6 +44,9 @@ public class MainActivity extends Activity {
 	int readBufferPosition = 0;
 	byte[] readBuffer = new byte[1024];
 
+    // Intent request codes
+    private static final int REQUEST_CONNECT_DEVICE = 1;
+    
 	// Buttons
 	private Button mBackMenuButton;
 	
@@ -77,11 +79,20 @@ public class MainActivity extends Activity {
 	private static Byte cDown = 68;			//D
 	private static Byte cStopDown = 100;	//d
 	
+	private AcceptThread mAcceptThread;
+	private ConnectThread mConnectThread;
+	private ReadThread mReadThread;
+    private BluetoothAdapter mAdapter;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		mAdapter = BluetoothAdapter.getDefaultAdapter();
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+		SetUpPlayerOptionMenu();
+        
+/*        setContentView(R.layout.activity_main);
 
         Connect = (Button) findViewById(R.id.connect);
         Result = (TextView) findViewById(R.id.msgJonduino);
@@ -91,9 +102,8 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				Connect();				        
 		        //beginSendCommandsThread();
-				SetUpPlayerOptionMenu();
 			}
-		});
+		});*/
 
         CheckBt();
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
@@ -136,6 +146,15 @@ public class MainActivity extends Activity {
 		}
     }
 	
+	public void Disconnect(){
+		if(btSocket != null){
+			try {
+				btSocket.close();
+			} catch (IOException e) {
+			}
+		}
+	}
+	
 	private void writeData(byte data) {
 		
 		try {
@@ -161,9 +180,187 @@ public class MainActivity extends Activity {
                     } catch (IOException e) {
                     }
     }
-    
 
+
+	private void setupHost() {
+        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+        if (mReadThread != null) {mReadThread.cancel(); mReadThread = null;}
+        if (mAcceptThread != null) {mAcceptThread.cancel(); mAcceptThread = null;}
+		
+		Connect();
+		
+		mAcceptThread = new AcceptThread();
+		mAcceptThread.start();		
+	}
+	
+	private void setupClient(){
+        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+        if (mReadThread != null) {mReadThread.cancel(); mReadThread = null;}
+        if (mAcceptThread != null) {mAcceptThread.cancel(); mAcceptThread = null;}
+        
+		Intent serverIntent = new Intent(this, DeviceListActivity.class);
+        startActivityForResult(serverIntent, 1);    
+	}
+	
+	private void connectToServer(String address){
+		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+		mConnectThread = new ConnectThread(device);
+        mConnectThread.start();
+	}
+	
+	 public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+        case REQUEST_CONNECT_DEVICE:
+            // When DeviceListActivity returns with a device to connect
+            if (resultCode == Activity.RESULT_OK) {
+                // Get the device MAC address
+                String address = data.getExtras()
+                                     .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                connectToServer(address);
+            }
+            break;
+        }
+    }
+	 
+	private class ReadThread extends Thread {
+        private final BluetoothSocket mmSocket;
+        private final InputStream mmInStream;
+
+        public ReadThread(BluetoothSocket socket) {
+            Log.d(TAG, "create ConnectedThread");
+            mmSocket = socket;
+            InputStream tmpIn = null;
+
+            // Get the BluetoothSocket input streams
+            try {
+                tmpIn = socket.getInputStream();
+            } catch (IOException e) {
+                Log.e(TAG, "temp sockets not created", e);
+            }
+
+            mmInStream = tmpIn;
+        }
+
+        public void run() {
+            Log.i(TAG, "BEGIN mConnectedThread");
+            byte[] buffer = new byte[1024];
+
+            // Keep listening to the InputStream while connected
+            while (true) {
+                try {
+                    // Read from the InputStream
+                    mmInStream.read(buffer);
+                    writeData(buffer[0]);
+                } catch (IOException e) {
+                    Log.e(TAG, "disconnected", e);
+                    break;
+                }
+            }
+        }       
+        public void cancel() {
+            try {
+                mmSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "close() of connect socket failed", e);
+            }
+        }
+    }
+	
+
+	private class AcceptThread extends Thread {
+        // The local server socket
+        private final BluetoothServerSocket mmServerSocket;
+
+        public AcceptThread() {
+            BluetoothServerSocket tmp = null;
+
+            // Create a new listening server socket
+            try {
+                tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME, MY_UUID);
+            } catch (IOException e) {
+                Log.e(TAG, "listen() failed", e);
+            }
+            mmServerSocket = tmp;
+        }
+
+        public void run() {
+            setName("AcceptThread");
+            BluetoothSocket socket = null;
+
+            // Listen to the server socket if we're not connected
+            while (socket == null) {
+                try {
+                    // This is a blocking call and will only return on a
+                    // successful connection or an exception
+                    socket = mmServerSocket.accept();
+                } catch (IOException e) {
+                    Log.e(TAG, "accept() failed", e);
+                    break;
+                }
+
+                // If a connection was accepted
+                if (socket != null) {                    
+                    mReadThread = new ReadThread(socket);
+                    mReadThread.start();                            
+                }
+            }
+        }
+
+        public void cancel() {
+            try {
+                mmServerSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "close() of server failed", e);
+            }
+        }
+    }
+		
+	private class ConnectThread extends Thread {
+        private final BluetoothDevice mmDevice;
+
+        public ConnectThread(BluetoothDevice device) {
+            mmDevice = device;
+            BluetoothSocket tmp = null;
+
+            // Get a BluetoothSocket for a connection with the
+            // given BluetoothDevice
+            try {
+                tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
+            } catch (IOException e) {
+                Log.e(TAG, "create() failed", e);
+            }
+            btSocket = tmp;
+        }
+
+        public void run() {
+            setName("ConnectThread");
+
+            // Make a connection to the BluetoothSocket
+            try {
+                // This is a blocking call and will only return on a
+                // successful connection or an exception
+            	btSocket.connect();
+            } catch (IOException e) {
+                try {
+                	btSocket.close();
+                } catch (IOException e2) {
+                    Log.e(TAG, "unable to close() socket during connection failure", e2);
+                }
+                return;
+            }
+        }
+
+        public void cancel() {
+            try {
+            	btSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "close() of connect socket failed", e);
+            }
+        }
+    }
+	
     public void SetUpPlayerOptionMenu(){
+    	Disconnect();
     	setContentView(R.layout.player_menu);
     	
     	mOnePlayerButton = (Button) findViewById(R.id.button_num_players_one);
@@ -190,6 +387,7 @@ public class MainActivity extends Activity {
     }
     
     public void SetUpTwoPlayer(){
+    	Disconnect();
     	setContentView(R.layout.two_player_menu);
     	
     	mPlayerOneButton = (Button) findViewById(R.id.button_player_one);
@@ -216,6 +414,7 @@ public class MainActivity extends Activity {
     }
     
 	public void SetUpThreePlayer(){
+    	Disconnect();
     	setContentView(R.layout.three_player_menu);
     	
     	mPlayerOneButton = (Button) findViewById(R.id.button_player_one);
@@ -249,6 +448,7 @@ public class MainActivity extends Activity {
     }
     
 	public void SetUpOnePlayer() {
+		Connect();				        
 		setContentView(R.layout.one_player);
 		
 		mUpButton = (Button) findViewById(R.id.button_vertical_up);
@@ -334,6 +534,7 @@ public class MainActivity extends Activity {
 	
 
     protected void SetUpTwoPlayer_PlayerTwo() {
+    	setupClient();
 		setContentView(R.layout.twoplayer_playertwo);
 		
 		mUpButton = (Button) findViewById(R.id.button_vertical_up);
@@ -394,6 +595,7 @@ public class MainActivity extends Activity {
 	}
 
 	protected void SetUpTwoPlayer_PlayerOne() {
+		setupHost();				        
 		setContentView(R.layout.twoplayer_playerone);
 
 		mForwardButton = (Button) findViewById(R.id.button_up);
@@ -432,6 +634,7 @@ public class MainActivity extends Activity {
 
     
 	protected void SetUpThreePlayer_PlayerThree() {
+    	setupClient();
 		setContentView(R.layout.threeplayer_playerthree);
 		
 		mUpButton = (Button) findViewById(R.id.button_vertical_up);
@@ -468,6 +671,7 @@ public class MainActivity extends Activity {
 	}
 
 	protected void SetUpThreePlayer_PlayerTwo() {
+    	setupClient();
 		setContentView(R.layout.threeplayer_playertwo);
 		
 		mLeftButton = (Button) findViewById(R.id.button_left);
@@ -504,6 +708,7 @@ public class MainActivity extends Activity {
 	}
 
 	protected void SetUpThreePlayer_PlayerOne() {
+		setupHost();
 		setContentView(R.layout.threeplayer_playerone);
 		
 		mForwardButton = (Button) findViewById(R.id.button_up);
