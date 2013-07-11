@@ -77,8 +77,6 @@ public class MainActivity extends Activity {
 	private static Byte cDown = 68;			//D
 	private static Byte cStopDown = 100;	//d
 	
-	Map<Byte,Boolean> outputCommands = new HashMap<Byte,Boolean>();
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -252,19 +250,6 @@ public class MainActivity extends Activity {
     
 	public void SetUpOnePlayer() {
 		setContentView(R.layout.one_player);
-
-		outputCommands.put(cForward,false);
-		outputCommands.put(cStopForward,true);
-		outputCommands.put(cRight,false);
-		outputCommands.put(cStopRight,true);
-		outputCommands.put(cLeft,false);
-		outputCommands.put(cStopLeft,true);
-		outputCommands.put(cReverse,false);
-		outputCommands.put(cStopReverse,true);
-		outputCommands.put(cUp,false);
-		outputCommands.put(cStopUp,true);
-		outputCommands.put(cDown,false);
-		outputCommands.put(cStopDown,true);
 		
 		mUpButton = (Button) findViewById(R.id.button_vertical_up);
 		mUpButton.setOnTouchListener(new OnTouchListener() {
@@ -350,11 +335,6 @@ public class MainActivity extends Activity {
 
     protected void SetUpTwoPlayer_PlayerTwo() {
 		setContentView(R.layout.twoplayer_playertwo);
-
-		outputCommands.put(cRight,false);
-		outputCommands.put(cStopRight,true);
-		outputCommands.put(cLeft,false);
-		outputCommands.put(cStopLeft,true);
 		
 		mUpButton = (Button) findViewById(R.id.button_vertical_up);
 		mUpButton.setOnTouchListener(new OnTouchListener() {
@@ -416,11 +396,6 @@ public class MainActivity extends Activity {
 	protected void SetUpTwoPlayer_PlayerOne() {
 		setContentView(R.layout.twoplayer_playerone);
 
-		outputCommands.put(cForward,false);
-		outputCommands.put(cStopForward,true);
-		outputCommands.put(cReverse,false);
-		outputCommands.put(cStopReverse,true);
-		
 		mForwardButton = (Button) findViewById(R.id.button_up);
 		mForwardButton.setOnTouchListener(new OnTouchListener() {
 		     @Override
@@ -458,11 +433,6 @@ public class MainActivity extends Activity {
     
 	protected void SetUpThreePlayer_PlayerThree() {
 		setContentView(R.layout.threeplayer_playerthree);
-
-		outputCommands.put(cUp,false);
-		outputCommands.put(cStopUp,true);
-		outputCommands.put(cDown,false);
-		outputCommands.put(cStopDown,true);
 		
 		mUpButton = (Button) findViewById(R.id.button_vertical_up);
 		mUpButton.setOnTouchListener(new OnTouchListener() {
@@ -499,11 +469,6 @@ public class MainActivity extends Activity {
 
 	protected void SetUpThreePlayer_PlayerTwo() {
 		setContentView(R.layout.threeplayer_playertwo);
-
-		outputCommands.put(cRight,false);
-		outputCommands.put(cStopRight,true);
-		outputCommands.put(cLeft,false);
-		outputCommands.put(cStopLeft,true);
 		
 		mLeftButton = (Button) findViewById(R.id.button_left);
 		mLeftButton.setOnTouchListener(new OnTouchListener() {
@@ -541,11 +506,6 @@ public class MainActivity extends Activity {
 	protected void SetUpThreePlayer_PlayerOne() {
 		setContentView(R.layout.threeplayer_playerone);
 		
-		outputCommands.put(cForward,false);
-		outputCommands.put(cStopForward,true);
-		outputCommands.put(cReverse,false);
-		outputCommands.put(cStopReverse,true);
-		
 		mForwardButton = (Button) findViewById(R.id.button_up);
 		mForwardButton.setOnTouchListener(new OnTouchListener() {
 		     @Override
@@ -577,61 +537,6 @@ public class MainActivity extends Activity {
 				SetUpThreePlayer();
 			}
 		});
-	}
-	
-	//This thread will loop ~10 times a second. Will output 6 commands per loop, 1 for each direction.
-	
-	public void beginSendCommandsThread(){
-		
-		Thread commandThread = new Thread(new Runnable(){
-			@Override
-			public void run() {
-				for(;;){
-					if(outputCommands.get(cForward) != null && outputCommands.get(cForward) == true){
-						writeData(cForward);
-					}
-					if(outputCommands.get(cStopForward) != null && outputCommands.get(cStopForward) == true){
-						writeData(cStopForward);
-					}
-					if(outputCommands.get(cRight) != null && outputCommands.get(cRight) == true){
-						writeData(cRight);
-					}
-					if(outputCommands.get(cStopRight) != null && outputCommands.get(cStopRight) == true){
-						writeData(cStopRight);
-					}
-					if(outputCommands.get(cLeft) != null && outputCommands.get(cLeft) == true){
-						writeData(cLeft);
-					}
-					if(outputCommands.get(cStopLeft) != null && outputCommands.get(cStopLeft) == true){
-						writeData(cStopLeft);
-					}
-					if(outputCommands.get(cReverse) != null && outputCommands.get(cReverse) == true){
-						writeData(cReverse);
-					}
-					if(outputCommands.get(cStopReverse) != null && outputCommands.get(cStopReverse) == true){
-						writeData(cStopReverse);
-					}
-					if(outputCommands.get(cUp) != null && outputCommands.get(cUp) == true){
-						writeData(cUp);
-					}
-					if(outputCommands.get(cStopUp) != null && outputCommands.get(cStopUp) == true){
-						writeData(cStopUp);
-					}
-					if(outputCommands.get(cDown) != null && outputCommands.get(cDown) == true){
-						writeData(cDown);
-					}
-					if(outputCommands.get(cStopDown) != null && outputCommands.get(cStopDown) == true){
-						writeData(cStopDown);
-					}
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}			
-		});
-		commandThread.start();
 	}
 }
 
