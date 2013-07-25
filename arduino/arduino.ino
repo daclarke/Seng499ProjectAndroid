@@ -1,42 +1,18 @@
-int rx_pin = 0;     // setting digital pin 0 to be the receiving pin
-int tx_pin = 1;     // setting the digital pin 1 to be the transmitting pin
-
-//Motor 1 LEFT MOTOR
-int motorPin1 =  5;    
-int motorPin2 =  6;    
-
-//Motor 2 RIGHT MOTOR
-int motorPin3 =  11;
-int motorPin4 =  10;
-
-//Motor 3
-int motorPin5 =  3;
-int motorPin6 =  9;
+#include <AFMotor.h>
+ 
+AF_DCMotor motor2(2, MOTOR12_1KHZ); // create motor #2, 1KHz pwm
+AF_DCMotor motor3(3, MOTOR12_1KHZ); // create motor #3, 1KHz pwm
+AF_DCMotor motor4(4, MOTOR12_1KHZ); // create motor #4, 1KHz pwm
 
 char incomingByte = 0; 
 
 // The setup() method runs once, when the sketch starts
-void setup()   {                
-  
-  // initialize the digital pins as an output:
-  pinMode(motorPin1, OUTPUT); 
-  pinMode(motorPin2, OUTPUT);  
-  pinMode(motorPin3, OUTPUT); 
-  pinMode(motorPin4, OUTPUT);  
-  pinMode(motorPin5, OUTPUT);  
-  pinMode(motorPin6, OUTPUT);
-  
-  digitalWrite(motorPin1, LOW);
-  digitalWrite(motorPin2, LOW);
-  digitalWrite(motorPin3, LOW);
-  digitalWrite(motorPin4, LOW);
-  digitalWrite(motorPin5, LOW);
-  digitalWrite(motorPin6, LOW);
-  delay(100);
-  
-  pinMode(rx_pin, INPUT);  // receiving pin as INPUT
-  pinMode(tx_pin, OUTPUT);
+void setup()   {   
   setupBlueToothConnection();
+    
+  motor2.setSpeed(150);     // set the speed to 200/255
+  motor3.setSpeed(150);     // set the speed to 200/255
+  motor4.setSpeed(250);     // set the speed to 200/255
 }
 
 void setupBlueToothConnection()
@@ -57,78 +33,64 @@ void setupBlueToothConnection()
 // as long as the Arduino has power
 void loop()                     
 {
+  motor2.run(RELEASE); 
+  motor3.run(RELEASE); 
+  motor4.run(RELEASE); 
   
   while(Serial.available()) {
     incomingByte = Serial.read();
     
     switch(incomingByte){
       case 'F':
-        digitalWrite(motorPin1, HIGH);
-        digitalWrite(motorPin2, LOW);
-        digitalWrite(motorPin3, HIGH);
-        digitalWrite(motorPin4, LOW);
+        motor2.run(FORWARD); 
+        motor4.run(FORWARD); 
         break;
       case 'f':
-        digitalWrite(motorPin1, LOW);
-        digitalWrite(motorPin2, LOW);
-        digitalWrite(motorPin3, LOW);
-        digitalWrite(motorPin4, LOW);
+        motor2.run(RELEASE); 
+        motor4.run(RELEASE); 
         break;
       case 'V':
-        digitalWrite(motorPin1, LOW);
-        digitalWrite(motorPin2, HIGH);
-        digitalWrite(motorPin3, LOW);
-        digitalWrite(motorPin4, HIGH);
+        motor2.run(BACKWARD); 
+        motor4.run(BACKWARD); 
         break;
       case 'v':
-        digitalWrite(motorPin1, LOW);
-        digitalWrite(motorPin2, LOW);
-        digitalWrite(motorPin3, LOW);
-        digitalWrite(motorPin4, LOW);
+        motor2.run(RELEASE); 
+        motor4.run(RELEASE);
         break;
       case 'R':
-        digitalWrite(motorPin1, HIGH);
-        digitalWrite(motorPin2, LOW);
-        digitalWrite(motorPin3, LOW);
-        digitalWrite(motorPin4, HIGH);
+        motor2.run(FORWARD); 
+        motor4.run(BACKWARD); 
         break;
       case 'r':
-        digitalWrite(motorPin1, LOW);
-        digitalWrite(motorPin2, LOW);
-        digitalWrite(motorPin3, LOW);
-        digitalWrite(motorPin4, LOW);
+        motor2.run(RELEASE); 
+        motor4.run(RELEASE);
         break;
       case 'L':
-        digitalWrite(motorPin1, LOW);
-        digitalWrite(motorPin2, HIGH);
-        digitalWrite(motorPin3, HIGH);
-        digitalWrite(motorPin4, LOW);
+        motor2.run(BACKWARD); 
+        motor4.run(FORWARD); 
         break;
       case 'l':
-        digitalWrite(motorPin1, LOW);
-        digitalWrite(motorPin2, LOW);
-        digitalWrite(motorPin3, LOW);
-        digitalWrite(motorPin4, LOW);
+        motor2.run(RELEASE); 
+        motor4.run(RELEASE);
         break;
       case 'U':
-        digitalWrite(motorPin5, LOW);
-        digitalWrite(motorPin6, HIGH);
+        motor3.run(FORWARD); 
         break;
       case 'u':
-        digitalWrite(motorPin5, LOW);
-        digitalWrite(motorPin6, LOW);
+        motor3.run(RELEASE); 
         break;
       case 'D':
-        digitalWrite(motorPin5, HIGH);
-        digitalWrite(motorPin6, LOW);
+        motor3.run(BACKWARD); 
         break;
       case 'd':
-        digitalWrite(motorPin5, LOW);
-        digitalWrite(motorPin6, LOW);
+        motor3.run(RELEASE); 
         break;
       default:
+        motor2.run(RELEASE); 
+        motor3.run(RELEASE); 
+        motor4.run(RELEASE); 
         break;       
     }
   }
-  delay(10);
+  delay(50);
 }
